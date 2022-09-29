@@ -1,14 +1,40 @@
-require("dotenv").config();
-const express = require("express");
+//sync or create database tables
+//
+// const { sequelize } = require("./models");
+// sequelize.sync();
+//
+
+//core imports
+require("dotenv").config(); // for security
+const express = require("express"); //for API
+const cors = require("cors"); // for cross-domain-ports requests
+const morgan = require("morgan"); // for dev-using logs
+
+//routes import
+const authRoute = require("./src/routes/authRoute");
+
+//middlewares import
+const notFound = require("./src/middlewares/notFound");
+const error = require("./src/middlewares/error");
+const auth = require("./src/middlewares/auth");
+
+//cores
 const app = express();
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev")); //logs option dev or combined
+}
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-const { sequelize } = require("./models");
-sequelize.sync();
+//routes
+app.use("/auth", authRoute);
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+//middlewares
+app.use(notFound);
+app.use(error);
 
+//server runner
 app.listen(process.env.PORT, () => {
   console.log(`app server listening on port ${process.env.PORT}`);
 });
