@@ -39,10 +39,10 @@ exports.login = async (req, res, next) => {
     const { username, password } = req.body;
     //validate
     if (typeof username !== "string") {
-      throw new Error("username is invalid", 400);
+      throw new Error("username is invalid");
     }
     if (typeof password !== "string") {
-      throw new Error("password is invalid", 400);
+      throw new Error("password is invalid");
     }
     //find user
     const pulledUser = await User.findOne({
@@ -50,12 +50,12 @@ exports.login = async (req, res, next) => {
     });
     //if user doesnt match database
     if (!pulledUser) {
-      throw new Error("this username doesnt exist", 400);
+      throw new Error("this username doesnt exist");
     }
     //if user password doesnt match database
     const isPasswordMatch = await bcrypt.compare(password, pulledUser.password);
     if (!isPasswordMatch) {
-      throw new Error("username or password is invalid", 400);
+      throw new Error("password is invalid");
     }
     //token created
     const token = jwt.sign({ id: pulledUser.id }, process.env.JWT_SECRET_KEY, {
