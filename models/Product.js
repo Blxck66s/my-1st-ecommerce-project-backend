@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const Product = sequelize.define(
     "Product",
     {
-      ProductName: {
+      productName: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: { notEmpty: true },
@@ -23,8 +23,6 @@ module.exports = (sequelize, DataTypes) => {
       stock: {
         type: DataTypes.INTEGER,
         defaultValues: 1,
-        allowNull: false,
-        validate: { notEmpty: true },
       },
       cpuName: {
         type: DataTypes.STRING,
