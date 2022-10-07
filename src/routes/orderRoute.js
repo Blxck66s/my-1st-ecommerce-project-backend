@@ -10,5 +10,6 @@ router.get(
   auth,
   orderController.getOrderPaymentConfirmByOrderId
 );
+router.post("/", auth, orderController.createOrder);
 
 module.exports = router;

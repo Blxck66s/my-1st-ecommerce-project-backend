@@ -57,3 +57,65 @@ exports.getOrderPaymentConfirmByOrderId = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.createOrder = async (req, res, next) => {
+  try {
+    const {
+      receiverName,
+      receiverPhone,
+      detailedAddress,
+      subDistrict,
+      district,
+      province,
+      postalCode,
+      sendBy,
+      item,
+      itemAmount,
+    } = req.body;
+
+    const userChecked = await User.findOne({ where: { id: req.user.id } });
+    if (!userChecked) {
+      throw new Error("unauthenticated");
+    }
+
+    const productStockChecked = await Product.findOne({ where: { id: item } });
+
+    if (+productStockChecked.stock < itemAmount) {
+      throw new Error("out of stock");
+    }
+    await Product.update(
+      { stock: +productStockChecked.stock - itemAmount },
+      { where: { id: item } }
+    );
+
+    const newOrder = await Order.create({
+      receiverName,
+      receiverPhone,
+      detailedAddress,
+      subDistrict,
+      district,
+      province,
+      postalCode,
+      orderStatus: "PENDING",
+      sendBy,
+      orderTotal:
+        sendBy === "EMS"
+          ? productStockChecked.productPrice * itemAmount + 1000
+          : sendBy === "Normal"
+          ? productStockChecked.productPrice * itemAmount + 300
+          : 0,
+      userId: req.user.id,
+    });
+
+    const newOrderItem = await OrderItem.create({
+      ProductId: item,
+      amount: itemAmount,
+      productPrice: productStockChecked.productPrice,
+      OrderId: newOrder.id,
+    });
+
+    res.status(201).json({ order: newOrder });
+  } catch (err) {
+    next(err);
+  }
+};

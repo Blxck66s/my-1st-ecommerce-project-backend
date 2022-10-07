@@ -61,6 +61,19 @@ exports.getProduct = async (req, res, next) => {
   }
 };
 
+exports.getProductById = async (req, res, next) => {
+  const productId = req.params.id;
+  try {
+    const pulledProduct = await Product.findOne({
+      where: { id: productId },
+    });
+
+    res.status(200).json({ Product: pulledProduct });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.getCPU = async (req, res, next) => {
   try {
     const pulledCPU = await Product.findAll({
@@ -176,7 +189,7 @@ exports.createProduct = async (req, res, next) => {
       productCost,
       productPrice,
       productImage: productImage ? productImage : null,
-      stock,
+      stock: stock ? stock : 1,
       cpuName,
       mainboardName,
       ramName,

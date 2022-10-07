@@ -6,6 +6,7 @@ const auth = require("../middlewares/auth");
 
 router.get("/TopProduct", productController.getTopProduct);
 router.get("/", productController.getProduct);
+router.get("/byId/:id", productController.getProductById);
 router.get("/total", productController.getTotalProduct);
 router.get("/CPU", productController.getCPU);
 router.get("/MB", productController.getMB);

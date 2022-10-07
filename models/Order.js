@@ -50,6 +50,10 @@ module.exports = (sequelize, DataTypes) => {
       orderTrackingNumber: {
         type: DataTypes.STRING,
       },
+      orderTotal: {
+        type: DataTypes.STRING,
+        validate: { notEmpty: true },
+      },
     },
     { underscored: true }
   );
