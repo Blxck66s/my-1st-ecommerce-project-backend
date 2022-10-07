@@ -16,6 +16,15 @@ exports.getTopProduct = async (req, res, next) => {
   }
 };
 
+exports.getTotalProduct = async (req, res, next) => {
+  try {
+    const pulledTotal = await Product.count();
+    res.status(200).json({ Product: pulledTotal });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.getProduct = async (req, res, next) => {
   const pageNo = +req.query.page || 1;
   const pageLimit = +req.query.limit || 5;

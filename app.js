@@ -14,6 +14,7 @@ const morgan = require("morgan"); // for dev-using logs
 const authRoute = require("./src/routes/authRoute");
 const orderRoute = require("./src/routes/orderRoute");
 const productRoute = require("./src/routes/productRoute");
+const payConRoute = require("./src/routes/payConRoute");
 
 //middlewares import
 const notFound = require("./src/middlewares/notFound");
@@ -33,6 +34,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/auth", authRoute);
 app.use("/order", orderRoute);
 app.use("/product", productRoute);
+app.use("/payconfirm", payConRoute);
 
 //middlewares
 app.use(notFound);

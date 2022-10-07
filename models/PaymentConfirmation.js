@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         validate: { notEmpty: true },
       },
       slipImage: {
-        type: DataTypes.ENUM("EMS", "NORMAL"),
+        type: DataTypes.STRING,
       },
       payeeFirstName: {
         type: DataTypes.STRING,
@@ -34,6 +34,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: {
         name: "OrderId",
         allowNull: false,
+        unique: true,
       },
       onDelete: "RESTRICT",
       onUpdate: "RESTRICT",
