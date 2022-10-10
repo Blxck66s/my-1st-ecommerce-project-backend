@@ -6,6 +6,7 @@ const {
   PaymentConfirmation,
   Product,
   User,
+  sequelize,
 } = require("../../models");
 
 exports.getOrder = async (req, res, next) => {
@@ -30,6 +31,13 @@ exports.getOrderById = async (req, res, next) => {
     const pulledOrder = await Order.findOne({
       where: { id: orderId },
       include: [
+        {
+          model: User,
+          attributes: ["firstName", "mobile"],
+        },
+        {
+          model: PaymentConfirmation,
+        },
         {
           model: OrderItem,
           include: [
@@ -110,11 +118,113 @@ exports.createOrder = async (req, res, next) => {
     const newOrderItem = await OrderItem.create({
       ProductId: item,
       amount: itemAmount,
+      productCost: productStockChecked.productCost,
       productPrice: productStockChecked.productPrice,
+
       OrderId: newOrder.id,
     });
 
     res.status(201).json({ order: newOrder });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getOrders = async (req, res, next) => {
+  if (!req.user.admin) {
+    throw new Error("unauthorized");
+  }
+  try {
+    const pulledOrders = await Order.findAll({
+      include: [{ model: PaymentConfirmation }],
+    });
+    res.status(200).json({ Order: pulledOrders });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getOrderCount = async (req, res, next) => {
+  if (!req.user.admin) {
+    throw new Error("unauthorized");
+  }
+  try {
+    const pulledOrders = await sequelize.query(
+      "SELECT CAST(created_at AS DATE) as date,COUNT(id) as totalOrdered FROM `orders` AS `Order` GROUP BY CAST(created_at AS DATE)"
+    );
+    res.status(200).json({ Order: pulledOrders[0] });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getOrderItems = async (req, res, next) => {
+  if (!req.user.admin) {
+    throw new Error("unauthorized");
+  }
+  try {
+    const pulledOrderItems = await OrderItem.findAll({});
+
+    res.status(200).json({ OrderItem: pulledOrderItems });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateOrder = async (req, res, next) => {
+  try {
+    const OrderId = req.params.id;
+    const { orderStatus, orderTrackingNumber, paymentStatus } = req.body;
+    console.log(paymentStatus);
+
+    const adminChecked = await User.findOne({ where: { id: req.user.id } });
+    if (!adminChecked.admin) {
+      throw new Error("unauthorized");
+    }
+
+    await Order.update(
+      {
+        orderStatus,
+        orderTrackingNumber,
+      },
+      { where: { id: OrderId } }
+    );
+
+    await PaymentConfirmation.update(
+      {
+        paymentStatus,
+      },
+      { where: { OrderId } }
+    );
+
+    res.status(200).json({ message: "update done" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteOrder = async (req, res, next) => {
+  try {
+    const OrderId = req.params.id;
+
+    const adminChecked = await User.findOne({ where: { id: req.user.id } });
+    if (!adminChecked.admin) {
+      throw new Error("unauthorized");
+    }
+
+    const updatedPaymentConfirmation = await PaymentConfirmation.destroy({
+      where: { OrderId },
+    });
+
+    const updatedOrderItems = await OrderItem.destroy({
+      where: { OrderId },
+    });
+
+    const updatedOrder = await Order.destroy({
+      where: { id: OrderId },
+    });
+
+    res.status(200).json({ message: "delete done" });
   } catch (err) {
     next(err);
   }

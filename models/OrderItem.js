@@ -7,6 +7,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: { notEmpty: true },
       },
+      productCost: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: { notEmpty: true },
+      },
       productPrice: {
         type: DataTypes.STRING,
         allowNull: false,
