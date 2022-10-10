@@ -9,7 +9,7 @@ exports.getTopProduct = async (req, res, next) => {
   try {
     const pulledProduct = await sequelize.query(
       `SELECT SUM(oi.amount) as Product_ordered , P.* FROM order_items as oi 
-    JOIN Products as P on  oi.product_id = P.id GROUP BY oi.product_id limit ${+limit}`
+    JOIN Products as P on  oi.product_id = P.id GROUP BY oi.product_id order by Product_ordered desc limit ${+limit}`
     );
     res.status(200).json({ Product: pulledProduct[0] });
   } catch (err) {
