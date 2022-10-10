@@ -175,7 +175,6 @@ exports.updateOrder = async (req, res, next) => {
   try {
     const OrderId = req.params.id;
     const { orderStatus, orderTrackingNumber, paymentStatus } = req.body;
-    console.log(paymentStatus);
 
     const adminChecked = await User.findOne({ where: { id: req.user.id } });
     if (!adminChecked.admin) {

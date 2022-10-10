@@ -5,10 +5,11 @@ const fs = require("fs");
 const { Op } = require("sequelize");
 
 exports.getTopProduct = async (req, res, next) => {
+  const limit = req.params.limit;
   try {
     const pulledProduct = await sequelize.query(
       `SELECT SUM(oi.amount) as Product_ordered , P.* FROM order_items as oi 
-    JOIN Products as P on  oi.product_id = P.id GROUP BY oi.product_id limit 4`
+    JOIN Products as P on  oi.product_id = P.id GROUP BY oi.product_id limit ${+limit}`
     );
     res.status(200).json({ Product: pulledProduct[0] });
   } catch (err) {
@@ -206,5 +207,56 @@ exports.createProduct = async (req, res, next) => {
     if (req.file) {
       fs.unlinkSync(req.file.path);
     }
+  }
+};
+
+exports.updateProduct = async (req, res, next) => {
+  try {
+    const ProductId = req.params.id;
+    const {
+      productName,
+      productCost,
+      productPrice,
+      stock,
+      cpuName,
+      mainboardName,
+      ramName,
+      gpuName,
+      driveName,
+      caseName,
+      psuName,
+    } = req.body;
+    let productImage = null;
+    console.log(req.file);
+    if (req.file) {
+      productImage = await cloudinary.upload(req.file.path);
+    }
+    console.log(req.user.id);
+    const adminChecked = await User.findOne({ where: { id: req.user.id } });
+    if (!adminChecked.admin) {
+      throw new Error("unauthorized");
+    }
+
+    await Product.update(
+      {
+        productName,
+        productCost,
+        productPrice,
+        productImage,
+        stock,
+        cpuName,
+        mainboardName,
+        ramName,
+        gpuName,
+        driveName,
+        caseName,
+        psuName,
+      },
+      { where: { id: ProductId } }
+    );
+
+    res.status(200).json({ message: "update done" });
+  } catch (err) {
+    next(err);
   }
 };
