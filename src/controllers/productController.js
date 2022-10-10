@@ -258,5 +258,9 @@ exports.updateProduct = async (req, res, next) => {
     res.status(200).json({ message: "update done" });
   } catch (err) {
     next(err);
+  } finally {
+    if (req.file) {
+      fs.unlinkSync(req.file.path);
+    }
   }
 };
