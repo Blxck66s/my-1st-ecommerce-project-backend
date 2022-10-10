@@ -227,11 +227,11 @@ exports.updateProduct = async (req, res, next) => {
       psuName,
     } = req.body;
     let productImage = null;
-    console.log(req.file);
+
     if (req.file) {
       productImage = await cloudinary.upload(req.file.path);
     }
-    console.log(req.user.id);
+
     const adminChecked = await User.findOne({ where: { id: req.user.id } });
     if (!adminChecked.admin) {
       throw new Error("unauthorized");
